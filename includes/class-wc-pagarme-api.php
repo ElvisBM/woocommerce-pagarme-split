@@ -888,11 +888,11 @@ class WC_Pagarme_API {
 	 *
 	 * @return array
 	 */
-	public function updating_receiver( $id ,$data ) {
+	public function updating_receiver( $receiver_id, $data ) {
 
 		$data['api_key'] = "ak_test_ImPZ4eVrT2Q84nzzgGs7Sh2vuYMJv3";
 
-		$response = $this->do_request( 'recipients/'.$id , 'POST', $data );
+		$response = $this->do_request( 'recipients/'.$receiver_id, 'POST', $data );
 
 		return json_decode($response['body']);
 	}
@@ -903,9 +903,6 @@ class WC_Pagarme_API {
 	 * @return array
 	 */
 	public function get_split_rules( $data ){
-
-
-
 
 		echo "<pre>";
 			printf( $data );

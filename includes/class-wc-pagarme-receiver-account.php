@@ -26,12 +26,27 @@ class WC_Pagarme_Receiver_Account{
 	}
 
 	//Receiver Account
-	public function receiver_account( ){	
+	public function receiver_account( $user_id ){	
+		
+		$bank_account_id 	= get_user_meta( $user_id, 'bank_account_id', true );
+		$receiver_id 	 	= get_user_meta( $user_id, 'receiver_id', true );
+		$bank_code 			= get_user_meta( $user_id, 'bank_code', true );
 
-		$user_id = get_current_user_id();
-
-		if( $this->create_bank_account( $user_id ) ) 
+		//update receiver
+		if( !empty( $bank_account_id ) && !empty( $receiver_id ) ){
+			$this->updating_receiver( $receiver_id, $user_id );
+		}else{
+			return " ";
+		}
+		
+		//Create receiver
+		if( !empty( $bank_code ) ){
+			if( $this->create_bank_account( $user_id ) ) 
 			$this->create_receiver( $user_id );
+		}else{
+
+			return " ";
+		}	
 	}
 
 	//Create Bank Account
@@ -76,7 +91,7 @@ class WC_Pagarme_Receiver_Account{
 	
 
 	//Updating Receiver
-	public function updating_receiver( $user_id ) {
+	public function updating_receiver( $receiver_id, $user_id ) {
 
 		$data = array(
 			'transfer_interval'    				=> get_user_meta( $user_id, 'transfer_interval', true ),
@@ -96,10 +111,7 @@ class WC_Pagarme_Receiver_Account{
 			'bank_account[legal_name]'    		=> get_user_meta( $user_id, 'legal_name', true ),
 		);	
 
-		$response = $this->api->updating_receiver( $user_id, $data );
-
-		//Update User Meta Id receiver
-		update_usermeta( $user_id, 'receiver_id', $response->id );
+		$response = $this->api->updating_receiver( $receiver_id, $data );
 	}
 }
 new WC_Pagarme_Receiver_Account( );

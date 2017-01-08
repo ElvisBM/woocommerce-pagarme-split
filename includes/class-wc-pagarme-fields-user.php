@@ -46,6 +46,12 @@ class WC_Pagarme_Fields_User{
 		add_action( 'edit_user_profile', array( $this, 'create_fields' ) );
 		add_action( 'personal_options_update',  array( $this, 'save_fields' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'save_fields' ) );
+
+		//WcVendor 
+		add_action( 'wcvendors_settings_after_paypal', 'create_fields' );//Front user
+		add_action( 'wcvendors_admin_after_commission_due', 'create_fields' );//backend admin
+		add_action( 'wcvendors_shop_settings_saved', 'save_fields' );
+		add_action( 'wcvendors_update_admin_user', 'save_fields' );
 		
 	}
 
