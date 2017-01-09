@@ -41,18 +41,12 @@ class WC_Pagarme_Fields_User{
 			'anticipatable_volume_percentage'   => 'Percentual de antecipação',
 		  	'receiver_id'    					=> 'Id do Recebedor',
 		);
-
-		add_action( 'show_user_profile', array( $this, 'create_fields' ) );
-		add_action( 'edit_user_profile', array( $this, 'create_fields' ) );
-		add_action( 'personal_options_update',  array( $this, 'save_fields' ) );
-		add_action( 'edit_user_profile_update', array( $this, 'save_fields' ) );
-
-		//WcVendor 
-		add_action( 'wcvendors_settings_after_paypal', 'create_fields' );//Front user
-		add_action( 'wcvendors_admin_after_commission_due', 'create_fields' );//backend admin
-		add_action( 'wcvendors_shop_settings_saved', 'save_fields' );
-		add_action( 'wcvendors_update_admin_user', 'save_fields' );
 		
+		//WcVendor 
+		add_action( 'wcvendors_settings_after_paypal', array( $this, 'add_fields_wc_vendor') );//add Front user
+		add_action( 'init', array( $this, 'save_fields_front' ) );// save user front 
+		add_action( 'wcvendors_admin_after_commission_due', array( $this, 'create_fields') );//add backend admin
+		add_action( 'wcvendors_update_admin_user',  array( $this, 'save_fields') );//save backend admin
 	}
 
 	public function create_fields( $user ){
@@ -89,20 +83,78 @@ class WC_Pagarme_Fields_User{
 		echo $theme;
 	}
 
-	public function save_fields ( $user_id ){
+	public function add_fields_wc_vendor( ){
+		
+		//Bank Fields
+		$theme  = '<h3>Conta para Recebimento</h3>';
+		$theme  = '<p>Informe os dados da conta que gostaria de receber de seus clientes, as transferências serão feitas pelo gateway PagarMe.</p>';
+		$theme .= '<div id="conta_banco_wcvendor">';
+		foreach( $this->bank_fields as $field => $label ){
+			$theme .= '<div class="field '.$field.'">';
+			$theme .= '<label for="'.$field.'">'.$label.'</label>';
+			$theme .= ' <span class="description">- Por favor preencha '.$label.'</span>';
+			$theme .= '<input type="text" name="'.$field.'" id="'.$field.'" value="'.get_user_meta( get_current_user_id(), $field, true ).'" class="regular-text" /><br />';
+			$theme .= '</div>';
+		}
+		$theme .= '</div>';
 
-		if ( !current_user_can( 'edit_user', $user_id ) )
-		return false;
+
+		//Receiver Fields
+		$theme .= '<h3>Infos de Recebedor</h3>';
+		$theme .= '<div id="recebedor_wcvendor">';
+		foreach( $this->receiver_fields as $field => $label ){
+			$theme .= '<div class="field '.$field.'">';
+			$theme .= '<label for="'.$field.'">'.$label.'</label>';
+			$theme .= ' <span class="description">- Por favor preencha '.$label.'</span>';
+			$theme .= '<input type="text" name="'.$field.'" id="'.$field.'" value="'.get_user_meta( get_current_user_id(), $field, true ).'" class="regular-text" /><br />';
+			$theme .= '</div>';
+		}
+		$theme .= '</div>';
+
+		echo $theme;
+	}
+	
+
+	public function save_fields_front ( $user_id ){
+
+		global $woocommerce;
+
+		$user_id = get_current_user_id();
 
 		//Bank Fields
 		foreach( $this->bank_fields as $field => $label ){
-			update_usermeta( $user_id, $field, $_POST[ $field ] );
+			if ( isset(  $_POST[ $field ] ) ) {
+				update_user_meta( $user_id, $field, $_POST[ $field ] );
+			}
 		}
 
 		//Receiver Fields
 		foreach( $this->receiver_fields as $field => $label ){
-			update_usermeta( $user_id, $field, $_POST[ $field ] );
+			if ( isset(  $_POST[ $field ] ) ) {
+				update_user_meta( $user_id, $field, $_POST[ $field ] );
+			}
 		}
+
+		do_action( 'wcvendors_shop_settings_saved', $user_id );
+	}
+
+
+	public function save_fields ( $user_id ){
+
+		//Bank Fields
+		foreach( $this->bank_fields as $field => $label ){
+			if ( isset(  $_POST[ $field ] ) ) {
+				update_user_meta( $user_id, $field, $_POST[ $field ] );
+			}
+		}
+
+		//Receiver Fields
+		foreach( $this->receiver_fields as $field => $label ){
+			if ( isset(  $_POST[ $field ] ) ) {
+				update_user_meta( $user_id, $field, $_POST[ $field ] );
+			}
+		}
+
 	}
 
 }
