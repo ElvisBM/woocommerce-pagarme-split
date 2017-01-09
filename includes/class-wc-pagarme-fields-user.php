@@ -19,6 +19,10 @@ class WC_Pagarme_Fields_User{
 
 	public function __construct() { 
 
+
+		// Set the API.
+		$this->api_receiver_account = new WC_Pagarme_Receiver_Account( $this );
+
 		//Bank Fields
 		$this->bank_fields = array( 
 		  	'bank_code'  		=> 'Código Banco',
@@ -136,6 +140,9 @@ class WC_Pagarme_Fields_User{
 		}
 
 		do_action( 'wcvendors_shop_settings_saved', $user_id );
+
+		//Create User
+		$this->api_receiver_account->receiver_account( $user_id );
 	}
 
 

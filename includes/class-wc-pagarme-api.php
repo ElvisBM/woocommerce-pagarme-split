@@ -862,7 +862,7 @@ class WC_Pagarme_API {
 	 */
 	public function create_bank_account( $data ) {
 
-		$data['api_key'] = "ak_test_ImPZ4eVrT2Q84nzzgGs7Sh2vuYMJv3";
+		$data['api_key'] = "ak_test_Oq6uuxxWJB4WFCbWC5cFOaM6sjYvvx";
 
 		$response = $this->do_request( 'bank_accounts', 'POST', $data );
 
@@ -877,7 +877,7 @@ class WC_Pagarme_API {
 	public function create_receiver( $data ) {
 
 
-		$data['api_key'] = "ak_test_ImPZ4eVrT2Q84nzzgGs7Sh2vuYMJv3";
+		$data['api_key'] = "ak_test_Oq6uuxxWJB4WFCbWC5cFOaM6sjYvvx";
 
 		$response = $this->do_request( 'recipients', 'POST', $data );
 
@@ -890,9 +890,10 @@ class WC_Pagarme_API {
 	 */
 	public function updating_receiver( $receiver_id, $data ) {
 
-		$data['api_key'] = "ak_test_ImPZ4eVrT2Q84nzzgGs7Sh2vuYMJv3";
+		$data['api_key'] = "ak_test_Oq6uuxxWJB4WFCbWC5cFOaM6sjYvvx";
+		$url =  'recipients/'.$receiver_id;
 
-		$response = $this->do_request( 'recipients/'.$receiver_id, 'POST', $data );
+		$response = $this->do_request( $url, 'PUT', $data );
 
 		return json_decode($response['body']);
 	}

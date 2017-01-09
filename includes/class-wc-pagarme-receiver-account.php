@@ -22,7 +22,7 @@ class WC_Pagarme_Receiver_Account{
 		// Set the API.
 		$this->api = new WC_Pagarme_API( $this );
 
-		add_action( 'profile_update',  array( $this, 'receiver_account' ) , 10, 2 );
+		add_action( 'profile_update',  array( $this, 'receiver_account' ) );
 	}
 
 	//Receiver Account
@@ -35,16 +35,13 @@ class WC_Pagarme_Receiver_Account{
 		//update receiver
 		if( !empty( $bank_account_id ) && !empty( $receiver_id ) ){
 			$this->updating_receiver( $receiver_id, $user_id );
-		}else{
-			return " ";
 		}
-		
+
 		//Create receiver
 		if( !empty( $bank_code ) ){
 			if( $this->create_bank_account( $user_id ) ) 
-			$this->create_receiver( $user_id );
+				$this->create_receiver( $user_id );
 		}else{
-
 			return " ";
 		}	
 	}
@@ -101,14 +98,16 @@ class WC_Pagarme_Receiver_Account{
 			'anticipatable_volume_percentage'   => get_user_meta( $user_id, 'anticipatable_volume_percentage' , true),
 			'anticipatable_volume_percentage'   => get_user_meta( $user_id, 'anticipatable_volume_percentage', true ),
 			'bank_account_id'   				=> get_user_meta( $user_id, 'bank_account_id', true ),
-			'bank_account[bank_code]'    		=> get_user_meta( $user_id, 'bank_code', true ),
-			'bank_account[agencia]'    			=> get_user_meta( $user_id, 'agencia' , true),
-			'bank_account[agencia_dv]'    		=> get_user_meta( $user_id, 'agencia_dv', true ),
-			'bank_account[conta]'    			=> get_user_meta( $user_id, 'conta' , true),
-			'bank_account[conta_dv]'    		=> get_user_meta( $user_id, 'conta_dv' , true),
-			'bank_account[type]'    			=> get_user_meta( $user_id, 'type', true ),
-			'bank_account[document_number]'   	=> get_user_meta( $user_id, 'document_number', true ),
-			'bank_account[legal_name]'    		=> get_user_meta( $user_id, 'legal_name', true ),
+			'bank_account'						=> array(
+														'bank_code'  => get_user_meta( $user_id, 'bank_code', true ),
+														'agencia'    => get_user_meta( $user_id, 'agencia' , true),
+														'agencia_dv'  => get_user_meta( $user_id, 'agencia_dv', true ),
+														'conta'      => get_user_meta( $user_id, 'conta' , true),
+														'conta_dv'   => get_user_meta( $user_id, 'conta_dv' , true),
+														'type'       => get_user_meta( $user_id, 'type', true ),
+														'document_number' => get_user_meta( $user_id, 'document_number', true ),
+														'legal_name' => get_user_meta( $user_id, 'legal_name', true ),
+													),
 		);	
 
 		$response = $this->api->updating_receiver( $receiver_id, $data );
