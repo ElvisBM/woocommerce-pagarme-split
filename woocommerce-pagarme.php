@@ -76,6 +76,10 @@ if ( ! class_exists( 'WC_Pagarme' ) ) :
 		 */
 		private function includes() {
 
+
+			//Split Checkout
+			include_once dirname( __FILE__ ) . '/includes/class-wc-pagarme-split-checkout.php';
+
 			//ADD BankAcoount 
 			include_once dirname( __FILE__ ) . '/includes/class-wc-pagarme-api.php';
 			include_once dirname( __FILE__ ) . '/includes/class-wc-pagarme-my-account.php';
@@ -86,7 +90,7 @@ if ( ! class_exists( 'WC_Pagarme' ) ) :
 			include_once dirname( __FILE__ ) . '/includes/class-wc-pagarme-split.php';
 			include_once dirname( __FILE__ ) . '/includes/class-wc-pagarme-receiver-account.php';
 			include_once dirname( __FILE__ ) . '/includes/class-wc-pagarme-fields-user.php';
-			include_once dirname( __FILE__ ) . '/includes/class-wc-pagarme-split-checkout.php';
+			
 		}
 
 		/**

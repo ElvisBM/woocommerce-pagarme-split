@@ -33,7 +33,7 @@ class WC_Pagarme_Fields_User{
 		  	'type'       		=> 'Tipo de Conta',
 		  	'document_number'   => 'CPF ou CNPJ',
 		  	'legal_name'		=> 'Nome Completo ou Razão Social',
-		  	'bank_account_id'   => 'Id Conta Banco Pagarme',
+		  	'bank_account_id'   	  => 'Id Conta Banco Pagarme',
 		);
 
 		//Receiver Fields
@@ -44,6 +44,7 @@ class WC_Pagarme_Fields_User{
 		  	'automatic_anticipation_enabled'    => 'Percentual de antecipação',
 			'anticipatable_volume_percentage'   => 'Percentual de antecipação',
 		  	'receiver_id'    					=> 'Id do Recebedor',
+		  	'percentage'   						=> 'Porcetagem de recebimento ex:85',
 		);
 		
 		//WcVendor 
@@ -59,10 +60,18 @@ class WC_Pagarme_Fields_User{
 		$theme  = '<h3>Bank Account</h3>';
 		$theme .= '<table class="form-table">';
 		foreach( $this->bank_fields as $field => $label ){
+
 			$theme .= '<tr>';
 			$theme .= '<th><label for="'.$field.'">'.$label.'</label></th>';
 			$theme .= '<td>';
-			$theme .= '<input type="text" name="'.$field.'" id="'.$field.'" value="'.esc_attr( get_the_author_meta( $field, $user->ID ) ).'" class="regular-text" /><br />';
+			if( $field == "percentage"){
+				$value = esc_attr( get_the_author_meta( $field, $user->ID ) );
+				if( empty( $value ) ){ $value = 85; };
+				$theme .= '<input type="text" name="'.$field.'" id="'.$field.'" value="'.$value.'" class="regular-text" /><br />';
+			}else{
+				$theme .= '<input type="text" name="'.$field.'" id="'.$field.'" value="'.esc_attr( get_the_author_meta( $field, $user->ID ) ).'" class="regular-text" /><br />';
+			}
+			
 			$theme .='<span class="description">Por favor preencha '.$label.'</span>
 				</td>';
 			$theme .= '</tr>';

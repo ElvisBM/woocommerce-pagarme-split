@@ -63,7 +63,7 @@ class WC_Pagarme_Receiver_Account{
 		$response = $this->api->create_bank_account( $data );
 
 		//Update User Meta Id Account Bank
-		update_usermeta( $user_id, 'bank_account_id', $response->id );
+		update_user_meta( $user_id, 'bank_account_id', $response->id );
 
 		return $response = true;
 	}
@@ -83,7 +83,7 @@ class WC_Pagarme_Receiver_Account{
 		$response = $this->api->create_receiver( $data );
 
 		//Update User Meta Id Receiver
-		update_usermeta( $user_id, 'receiver_id', $response->id );
+		update_user_meta( $user_id, 'receiver_id', $response->id );
 	}
 	
 
@@ -113,4 +113,4 @@ class WC_Pagarme_Receiver_Account{
 		$response = $this->api->updating_receiver( $receiver_id, $data );
 	}
 }
-new WC_Pagarme_Receiver_Account( );
+new WC_Pagarme_Receiver_Account();

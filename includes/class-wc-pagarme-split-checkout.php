@@ -1,106 +1,98 @@
 <?php
+/**
+ * Pagar.me API
+ *
+ * @package WooCommerce_Pagarme/API
+ */
 
-// add_action( 'woocommerce_checkout_process', 'gastronomy_wc_minimum_order_amount' );
-// add_action( 'woocommerce_before_cart' , 'gastronomy_wc_minimum_order_amount' );
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+ 
+class WC_Pagarme_Split_checkout { 
 
-// apply_filters('woocommerce_shipping_fields', addfield() );
+	/**
+	 * Constructor.
+	 *
+	 * @param WC_Pagarme_Split_checkout
+	 */
+	public function __construct( ) {
+		add_filter( 'woocommerce_checkout_cart_item_quantity', array( $this, 'get_author_price_on_checkout' ) );
+	}
 
-// function addfield(){
-// 	echo "<pre>";
-// 		//print_r( "teste abcd" );
-// 	echo "</pre>";
-	
+	function get_author_price_on_checkout( $user_id ) {
 
-// }
-
-function add_meta_on_checkout( $quantity , $cart_item , $cart_item_key  ) {
-
-
-
-	// 	foreach( WC()->cart->get_cart() as $cart_item ) {
-
-	// 	  var_dump( $cart_item );
-	// 	  var_dump( WC()->cart->get_item_data( $cart_item ) );
-	// 	}
-	// // 
-
-		// //Id Author item 
-		// $user_id_item = $cart_item['data']->post->post_author;
-
-		// $count = count($cart_item['data']);
-
-		// //Valor a ser considerado
-		// //$cart_item['line_total']
-
-		// //Get Receiver Id
-		// $receiver_id = get_user_meta( $user_id_item, 'receiver_id', true );
-
+		//Get Cart Item
 		$cart_itens = WC()->cart->get_cart();
-		$count = count($cart_itens);
 
-		 foreach( $cart_itens as $item => $values ) { 
-            $_product = $values['data']->post; 
+		$i = 1;
+		//Get only id authors
+		foreach( $cart_itens as $item => $values ) { 
+	       
+	       $_product = $values['data']->post; 
+	       $authors[$i] = $_product->post_author;
 
-            echo $_product->post_author . "   ";
+	       $i++;
+	    }
 
+	    //Check repeated authors
+	    $authors = array_unique($authors);
 
+	    //Get value for author
+	    for ($i=1; $i <= count( $authors ) ; $i++) { 
+	    	
+	    	foreach( $cart_itens as $item => $values ) { 
+	  
+	    		$_product = $values['data']->post; 
+	       		$author = $_product->post_author;
+	       		$price = $values['data']->price;
+	       		
+	       		//verify author
+	       		if( $authors[$i] == $author ){
+	       			$prices[$i] = $prices[$i] + $price;
+	       		}
+		    }
+	    }
 
-            // echo "<b>".$_product->post_author.'</b>  <br> Quantity: '.$values['quantity'].'<br>'; 
-            // $price = get_post_meta($values['product_id'] , '_price', true);
-            // echo "  Price: ".$price."<br>";
-        } 
+	    //Set Rules Get Authors
+	    for ($i=1; $i <= count( $authors ) ; $i++) { 
 
+	    	$percentage = get_user_meta( $authors[$i], 'percentage', true );
+	    	$amount = $this->porcentagem( $percentage, $prices[$i] );
 
-}
-add_filter( 'woocommerce_checkout_cart_item_quantity', 'add_meta_on_checkout', 10, 3 );
+	    	//Add Rules
+			$rules[$i]['recipient_id'] = get_user_meta( $authors[$i], 'receiver_id', true );
+			//Define se o recebedor dessa regra irá ser cobrado pela taxa da Pagar.me
+			$rules[$i]['charge_processing_fee'] = false;
+			//Risco da Transação
+			$rules[$i]['liable'] = false;
+			//Porcentagem que o recebedor vai receber do valor da transação. 
+			//$rules[$i]['percentage'] = 85;
+			//Valor que o recebedor vai receber da transação. 
+			$rules[$i]['amount'] = $amount;
+	    }
 
-
-function get_cart_item_author(){
-
-	//Get Cart Item
-	$cart_itens = WC()->cart->get_cart();
-
-	//Array Authors
-	$authors;
-	$i = 1;
-
-	//Get only id authors
-	foreach( $cart_itens as $item => $values ) { 
-       
-       $_product = $values['data']->post; 
-
-       $authors[$i] = $_product->post_author ;
-
-       $i++;
-    }
-
-    //Check repeated authors
-    $authors = array_unique($authors);
-
-    /* Exemplo
-     * Total: 100
-     * Recebedor 1: Amount 100, Percentual 10
-     * Recebedor 2: Amount 50,  Percentual 90
-     * Recebedor 3: Amount 50,  Percentual 90	 
-     */
-
-
-    //Set Rules Get Authors
-    for ($i=0; $i < count( $authors ) ; $i++) { 
-    	//Add Rules
-		$rules[$i]['recipient_id'] = get_user_meta( $user_id_item, 'receiver_id', true );
+ 		/*
+ 		 * RULES ADMIN
+ 		 */
+		$rules[0]['recipient_id'] = "re_cixqs8mzn004z4m6e4q7kml2l";
 		//Define se o recebedor dessa regra irá ser cobrado pela taxa da Pagar.me
-		$rules[$i]['charge_processing_fee'] = false;
+		$rules[0]['charge_processing_fee'] = true;
 		//Risco da Transação
-		$rules[$i]['liable'] = false;
+		$rules[0]['liable'] = true;
 		//Porcentagem que o recebedor vai receber do valor da transação. 
-		$rules[$i]['percentage'] = 83;
+		//$rules[$i]['percentage'] = 85;
 		//Valor que o recebedor vai receber da transação. 
-		$rules[$i]['amount'] = null;
-    }
+		$rules[0]['amount'] = $this->porcentagem( 15, array_sum( $prices ) );
 
+	    return $rules;
+	}
 
-
+	public function porcentagem ( $porcentagem, $total ) {
+		return ( $porcentagem / 100 ) * $total;
+	}
 }
+
+
 
 

@@ -54,6 +54,8 @@ class WC_Pagarme_API {
 	 */
 	public function __construct( $gateway = null ) {
 		$this->gateway = $gateway;
+
+		$this->split_rules = new WC_Pagarme_Split_checkout( $this );
 	}
 
 	/**
@@ -489,8 +491,7 @@ class WC_Pagarme_API {
 		);	
 
 		//Regras Split
-		$data['split_rules'] = $this->get_split_rules( $order );
-
+		$data['split_rules'] = $this->split_rules->get_author_price_on_checkout( $order );
 
 		return apply_filters( 'wc_pagarme_checkout_data', $data );
 	}
@@ -883,7 +884,8 @@ class WC_Pagarme_API {
 
 		return json_decode($response['body']);
 	}
-	 /**
+
+	/**
 	 * Set Updating Receiver.
 	 *
 	 * @return array
@@ -895,44 +897,7 @@ class WC_Pagarme_API {
 
 		$response = $this->do_request( $url, 'PUT', $data );
 
-		return json_decode($response['body']);
-	}
-
-	/**
-	 * Set Split Rules.
-	 *
-	 * @return array
-	 */
-	public function get_split_rules( $data ){
-
-		echo "<pre>";
-			printf( $data );
-		echo "</pre>";
-		die;
-		
-		//Add Rules 
-		$rules[0]['recipient_id'] = 're_cix28ozs006upa36ecpntmfuc';
-		//Define se o recebedor dessa regra irá ser cobrado pela taxa da Pagar.me
-		$rules[0]['charge_processing_fee'] = true;
-		//Risco da Transação
-		$rules[0]['liable'] = true;
-		//Porcentagem que o recebedor vai receber do valor da transação. 
-		$rules[0]['percentage']= 17;
-		//Valor que o recebedor vai receber da transação. 
-		$rules[0]['amount'] = null;
-		
-		//Add Rules
-		$rules[1]['recipient_id'] = 're_cix147thc03yhov6dt06dfx4q';
-		//Define se o recebedor dessa regra irá ser cobrado pela taxa da Pagar.me
-		$rules[1]['charge_processing_fee'] = false;
-		//Risco da Transação
-		$rules[1]['liable'] = false;
-		//Porcentagem que o recebedor vai receber do valor da transação. 
-		$rules[1]['percentage'] = 83;
-		//Valor que o recebedor vai receber da transação. 
-		$rules[1]['amount'] = null;
-
-		return $rules;
+		return json_decode( $response['body'] );
 	}
 
 }
