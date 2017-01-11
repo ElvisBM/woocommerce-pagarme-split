@@ -46,10 +46,10 @@ class WC_Pagarme_Fields_User{
 		  	'receiver_id'    					=> 'Id do Recebedor',
 		  	'percentage'   						=> 'Porcetagem de recebimento ex:85',
 		);
-		
+
 		//WcVendor 
 		add_action( 'wcvendors_settings_after_paypal', array( $this, 'add_fields_wc_vendor') );//add Front user
-		add_action( 'init', array( $this, 'save_fields_front' ) );// save user front 
+		add_action( 'init', array( $this, 'save_fields_front') );// save user front 
 		add_action( 'wcvendors_admin_after_commission_due', array( $this, 'create_fields') );//add backend admin
 		add_action( 'wcvendors_update_admin_user',  array( $this, 'save_fields') );//save backend admin
 	}
@@ -128,30 +128,29 @@ class WC_Pagarme_Fields_User{
 	}
 	
 
-	public function save_fields_front ( $user_id ){
-
-		global $woocommerce;
+	public function save_fields_front ( ){
 
 		$user_id = get_current_user_id();
 
-		//Bank Fields
-		foreach( $this->bank_fields as $field => $label ){
-			if ( isset(  $_POST[ $field ] ) ) {
-				update_user_meta( $user_id, $field, $_POST[ $field ] );
+		if ( !empty( $_POST['bank_code'] ) ) {
+
+			//Bank Fields
+			foreach( $this->bank_fields as $field => $label ){
+				if ( isset(  $_POST[ $field ] ) ) {
+					update_user_meta( $user_id, $field, $_POST[ $field ] );
+				}
 			}
-		}
 
-		//Receiver Fields
-		foreach( $this->receiver_fields as $field => $label ){
-			if ( isset(  $_POST[ $field ] ) ) {
-				update_user_meta( $user_id, $field, $_POST[ $field ] );
+			//Receiver Fields
+			foreach( $this->receiver_fields as $field => $label ){
+				if ( isset(  $_POST[ $field ] ) ) {
+					update_user_meta( $user_id, $field, $_POST[ $field ] );
+				}
 			}
+
+			//Create User
+			$this->api_receiver_account->receiver_account( $user_id );
 		}
-
-		do_action( 'wcvendors_shop_settings_saved', $user_id );
-
-		//Create User
-		$this->api_receiver_account->receiver_account( $user_id );
 	}
 
 
