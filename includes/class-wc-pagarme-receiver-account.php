@@ -22,7 +22,7 @@ class WC_Pagarme_Receiver_Account{
 		// Set the API.
 		$this->api = new WC_Pagarme_API( $this );
 
-		add_action( 'profile_update',  array( $this, 'receiver_account' ) );
+		add_action( 'personal_options_update',  array( $this, 'receiver_account' ) , 10, 2);
 	}
 
 	//Receiver Account
