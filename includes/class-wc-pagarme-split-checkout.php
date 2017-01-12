@@ -20,7 +20,9 @@ class WC_Pagarme_Split_checkout {
 		add_filter( 'woocommerce_checkout_cart_item_quantity', array( $this, 'get_author_price_on_checkout' ) );
 	}
 
-	function get_author_price_on_checkout( $user_id ) {
+	public function get_author_price_on_checkout( $user_id ) {
+
+		global $wp;
 
 		//Get Cart Item
 		$cart_itens = WC()->cart->get_cart();
@@ -85,11 +87,26 @@ class WC_Pagarme_Split_checkout {
 		//Valor que o recebedor vai receber da transação. 
 		$rules[0]['amount'] = $this->porcentagem( 15, array_sum( $prices ) );
 
-	    return $rules;
+		return $rules;
 	}
 
 	public function porcentagem ( $porcentagem, $total ) {
-		return ( $porcentagem / 100 ) * $total;
+		$value_total = round(( $porcentagem / 100 ) * $total, 2);
+		
+		if( strpos( $value_total, "." ) ) {
+
+			$count = explode( ".", $value_total);
+			if( strlen( $count[1] ) === 1 ){
+				$value_total = $value_total . "0";
+			}
+
+		}else{
+			$value_total = $value_total . "00";
+		}
+
+		$formato_pagarme = str_replace( ".", "", $value_total );
+		
+		return $formato_pagarme;
 	}
 }
 

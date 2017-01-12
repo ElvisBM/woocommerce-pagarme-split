@@ -345,6 +345,8 @@ class WC_Pagarme_API {
 			$data['payment_method'] = 'boleto';
 		}
 
+		$data['split_rules'] = $this->split_rules->get_author_price_on_checkout( $order );
+
 		// Add filter for Third Party plugins.
 		return apply_filters( 'wc_pagarme_transaction_data', $data , $order );
 	}
@@ -487,11 +489,7 @@ class WC_Pagarme_API {
 			'metadata' => array(
 				'order_number' => $order->get_order_number(),
 			),
-
-		);	
-
-		//Regras Split
-		$data['split_rules'] = $this->split_rules->get_author_price_on_checkout( $order );
+		);
 
 		return apply_filters( 'wc_pagarme_checkout_data', $data );
 	}
@@ -670,6 +668,7 @@ class WC_Pagarme_API {
 			}
 		} else {
 			$data        = $this->generate_transaction_data( $order, $_POST );
+
 			$transaction = $this->do_transaction( $order, $data );
 		}
 
@@ -899,5 +898,4 @@ class WC_Pagarme_API {
 
 		return json_decode( $response['body'] );
 	}
-
 }
