@@ -90,6 +90,30 @@ class WC_Pagarme_Receiver_Account{
 	//Updating Receiver
 	public function updating_receiver( $receiver_id, $user_id ) {
 
+		//Create Bank Account
+		$data = array(
+			'bank_code'    		=> get_user_meta( $user_id, 'bank_code', true ),
+			'agencia'    		=> get_user_meta( $user_id, 'agencia', true ),
+			'agencia_dv'    	=> get_user_meta( $user_id, 'agencia_dv', true ),
+			'conta'    			=> get_user_meta( $user_id, 'conta', true ),
+			'conta_dv'    		=> get_user_meta( $user_id, 'conta_dv', true ),
+			'type'    			=> get_user_meta( $user_id, 'type', true ),
+			'document_number'   => get_user_meta( $user_id, 'document_number', true ),
+			'legal_name'    	=> get_user_meta( $user_id, 'legal_name', true ),
+		);
+
+		$response = $this->api->create_bank_account( $data );
+
+		$bank_account_id 	 = get_user_meta( $user_id, 'bank_account_id', true );
+		$bank_account_id_old = get_user_meta( $user_id, 'bank_account_id_old', true );
+		$bank_account_id_old = $bank_account_id . " / " . $bank_account_id_old;
+
+		//Update User Meta Id Account Bank
+		update_user_meta( $user_id, 'bank_account_id_old', $bank_account_id_old );
+
+		//Update User Meta Id Account Bank
+		update_user_meta( $user_id, 'bank_account_id', $response->id );
+
 		$data = array(
 			'transfer_interval'    				=> get_user_meta( $user_id, 'transfer_interval', true ),
 			'transfer_day'    					=> get_user_meta( $user_id, 'transfer_day' , true),
@@ -98,16 +122,6 @@ class WC_Pagarme_Receiver_Account{
 			'anticipatable_volume_percentage'   => get_user_meta( $user_id, 'anticipatable_volume_percentage' , true),
 			'anticipatable_volume_percentage'   => get_user_meta( $user_id, 'anticipatable_volume_percentage', true ),
 			'bank_account_id'   				=> get_user_meta( $user_id, 'bank_account_id', true ),
-			'bank_account'						=> array(
-														'bank_code'  => get_user_meta( $user_id, 'bank_code', true ),
-														'agencia'    => get_user_meta( $user_id, 'agencia' , true),
-														'agencia_dv'  => get_user_meta( $user_id, 'agencia_dv', true ),
-														'conta'      => get_user_meta( $user_id, 'conta' , true),
-														'conta_dv'   => get_user_meta( $user_id, 'conta_dv' , true),
-														'type'       => get_user_meta( $user_id, 'type', true ),
-														'document_number' => get_user_meta( $user_id, 'document_number', true ),
-														'legal_name' => get_user_meta( $user_id, 'legal_name', true ),
-													),
 		);	
 
 		$response = $this->api->updating_receiver( $receiver_id, $data );
