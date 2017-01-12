@@ -45,6 +45,7 @@ class WC_Pagarme_Fields_User{
 			'anticipatable_volume_percentage'   => 'Percentual de antecipação',
 		  	'receiver_id'    					=> 'Id do Recebedor',
 		  	'percentage'   						=> 'Porcetagem de recebimento ex:85',
+		  	'bank_account_id_old'				=> 'Contas Antigas de Recebimentos',
 		);
 
 		//WcVendor 
@@ -131,25 +132,49 @@ class WC_Pagarme_Fields_User{
 	public function save_fields_front ( ){
 
 		$user_id = get_current_user_id();
+		$change = false;
+		
+		if ( !empty( $_POST['bank_code'] ) ) {	
 
-		if ( !empty( $_POST['bank_code'] ) ) {
-
-			//Bank Fields
+			//Valid change Bank
 			foreach( $this->bank_fields as $field => $label ){
-				if ( isset(  $_POST[ $field ] ) ) {
-					update_user_meta( $user_id, $field, $_POST[ $field ] );
+				
+				$field_change = get_user_meta( $user_id, $field, true );
+
+				if ( isset( $_POST[ $field ] ) != $field_change ) {
+					$change =  true;
 				}
 			}
 
-			//Receiver Fields
+			//Valid change Receiver
 			foreach( $this->receiver_fields as $field => $label ){
-				if ( isset(  $_POST[ $field ] ) ) {
-					update_user_meta( $user_id, $field, $_POST[ $field ] );
+				
+				$field_change = get_user_meta( $user_id, $field, true );
+
+				if ( isset( $_POST[ $field ] ) != $field_change ) {
+					$change =  true;
 				}
 			}
 
-			//Create User
-			$this->api_receiver_account->receiver_account( $user_id );
+			if( $change ){
+
+				//Bank Fields
+				foreach( $this->bank_fields as $field => $label ){
+					if ( isset(  $_POST[ $field ] ) ) {
+						update_user_meta( $user_id, $field, $_POST[ $field ] );
+					}
+				}
+
+				//Receiver Fields
+				foreach( $this->receiver_fields as $field => $label ){
+					if ( isset(  $_POST[ $field ] ) ) {
+						update_user_meta( $user_id, $field, $_POST[ $field ] );
+					}
+				}
+
+				//Create User
+				$this->api_receiver_account->receiver_account( $user_id );
+			}
 		}
 	}
 
