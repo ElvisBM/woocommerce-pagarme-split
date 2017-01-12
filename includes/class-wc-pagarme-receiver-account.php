@@ -21,7 +21,7 @@ class WC_Pagarme_Receiver_Account{
 
 		// Set the API.
 		$this->api = new WC_Pagarme_API( $this );
-
+		//This hook only triggers when a user is viewing their own profile page wp-admin
 		add_action( 'personal_options_update',  array( $this, 'receiver_account' ) , 10, 2);
 	}
 
