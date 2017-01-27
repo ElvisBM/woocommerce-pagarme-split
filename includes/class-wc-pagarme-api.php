@@ -876,7 +876,6 @@ class WC_Pagarme_API {
 	 */
 	public function create_receiver( $data ) {
 
-
 		$data['api_key'] = "ak_test_Oq6uuxxWJB4WFCbWC5cFOaM6sjYvvx";
 
 		$response = $this->do_request( 'recipients', 'POST', $data );

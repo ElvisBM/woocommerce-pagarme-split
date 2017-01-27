@@ -286,6 +286,10 @@ class WC_Pagarme_Fields_User{
 		$theme .='<input type="number" name="transfer_day" id="transfer_day" class="disable_day" value="'.$transfer_day.'" min="1" max="31" '.$day_monthly_select.'>';
 		$theme .= '</div>';
 
+		$theme .= '<div class="field transfer_enabled" style="display:none;">';
+		$theme .= '<input type="text" name="transfer_enabled" id="transfer_enabled" value="true" class="regular-text" />';
+		$theme .= '</div>';
+
 		$theme .= '<div class="field automatic_anticipation_enabled" style="display:none;">';
 		$theme .= '<input type="text" name="automatic_anticipation_enabled" id="automatic_anticipation_enabled" value="true" class="regular-text" />';
 		$theme .= '</div>';
@@ -316,15 +320,36 @@ class WC_Pagarme_Fields_User{
 
 		$user_id = get_current_user_id();
 		$change = false;
+		$bank_account_id 	= get_user_meta( $user_id, 'bank_account_id', true );
+		$receiver_id 	 	= get_user_meta( $user_id, 'receiver_id', true );
+		$bank_code 			= get_user_meta( $user_id, 'bank_code', true );
+
+		$post = array(
+				'bank_code'    						=> $_POST['bank_code'],
+				'agencia'    						=> $_POST['agencia'],
+				'agencia_dv'    					=> $_POST['agencia_dv'],
+				'conta'    							=> $_POST['conta'],
+				'conta_dv'    						=> $_POST['conta_dv'],
+				'type'    							=> $_POST['type'],
+				'document_number'   				=> $_POST['document_number'],
+				'legal_name'    					=> $_POST['legal_name'],
+				'transfer_interval'    				=> $_POST['transfer_interval'],
+				'transfer_day'    					=> $_POST['transfer_day'],
+				'transfer_enabled'    				=> $_POST['transfer_enabled'],
+				'automatic_anticipation_enabled'    => $_POST['automatic_anticipation_enabled'],
+				'anticipatable_volume_percentage'   => $_POST['anticipatable_volume_percentage'],
+				'bank_account_id'   				=> $_POST['bank_account_id'],
+				'receiver_id'   					=> $_POST['receiver_id'],
+			);
 		
-		if ( !empty( $_POST['bank_code'] ) ) {	
+		if ( !empty( $post['bank_code'] ) ) {	
 
 			//Valid change Bank
 			foreach( $this->bank_fields as $field => $label ){
 				
 				$field_change = get_user_meta( $user_id, $field, true );
 
-				if ( isset( $_POST[ $field ] ) != $field_change ) {
+				if ( isset( $post[ $field ] )!= $field_change ) {
 					$change =  true;
 				}
 			}
@@ -334,29 +359,43 @@ class WC_Pagarme_Fields_User{
 				
 				$field_change = get_user_meta( $user_id, $field, true );
 
-				if ( isset( $_POST[ $field ] ) != $field_change ) {
+				if ( isset( $post[ $field ] ) != $field_change ) {
 					$change =  true;
 				}
 			}
 
 			if( $change ){
 
-				//Bank Fields
+				//update receiver
+				if( !empty( $bank_account_id ) && !empty( $receiver_id ) ){
+					$this->api_receiver_account->updating_receiver( $post, $receiver_id, $user_id );
+				}
+
+				//Bank Save Fields WP
 				foreach( $this->bank_fields as $field => $label ){
-					if ( isset(  $_POST[ $field ] ) ) {
-						update_user_meta( $user_id, $field, $_POST[ $field ] );
+					if ( isset(  $post[ $field ] ) ) {
+						if( empty( $bank_account_id ) ){
+							update_user_meta( $user_id, $field, $_POST[ $field ] );
+						}else{
+							if( $field != "bank_account_id" ){
+								update_user_meta( $user_id, $field, $_POST[ $field ] );
+							}
+						}
 					}
 				}
 
-				//Receiver Fields
+				//Receiver Save Fields WP
 				foreach( $this->receiver_fields as $field => $label ){
-					if ( isset(  $_POST[ $field ] ) ) {
+					if ( isset(  $post[ $field ] ) ) {
 						update_user_meta( $user_id, $field, $_POST[ $field ] );
 					}
 				}
 
-				//Create User
-				$this->api_receiver_account->receiver_account( $user_id );
+				//Create receiver
+				if( empty( $bank_code ) ){
+					if( $this->api_receiver_account->create_bank_account( $user_id ) ) 
+						$this->api_receiver_account->create_receiver( $user_id );
+				}
 			}
 		}
 	}
