@@ -279,6 +279,7 @@ class WC_Pagarme_Fields_User{
 		$theme .='<input type="number" name="transfer_day" id="transfer_day" class="disable_day" value="'.$transfer_day.'" min="1" max="31" '.$day_monthly_select.'>';
 		$theme .= '</div>';
 		$theme .= '</div>';
+		$theme .= '</div>';
 
 		$theme .= '<div class="field transfer_enabled" style="display:none;">';
 		$theme .= '<input type="text" name="transfer_enabled" id="transfer_enabled" value="true" class="regular-text" />';
