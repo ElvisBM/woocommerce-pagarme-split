@@ -298,7 +298,7 @@ class WC_Pagarme_Fields_User{
 		$theme .= '</div>';
 
 		$theme .= '<div class="field percentage" style="display:none;">';
-		$theme .= '<input type="text" name="percentage" id="percentage" value="'.get_user_meta( get_current_user_id(), 'percentage', true ).'" class="regular-text" />';
+		$theme .= '<input type="text" name="percentage" id="percentage" value="85" class="regular-text" />';
 		$theme .= '</div>';
 
 		$theme .= '<div class="field bank_account_id_old" style="display:none;">';
