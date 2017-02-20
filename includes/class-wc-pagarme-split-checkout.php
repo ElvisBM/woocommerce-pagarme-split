@@ -85,7 +85,11 @@ class WC_Pagarme_Split_checkout {
 		//Porcentagem que o recebedor vai receber do valor da transação. 
 		//$rules[$i]['percentage'] = 85;
 		//Valor que o recebedor vai receber da transação. 
-		$rules[0]['amount'] = $this->porcentagem( 15, array_sum( $prices ) );
+		for($i=1; $i <= count( $rules ) ; $i++){
+			$total_rules = $total_rules + $rules[$i]['amount']; 
+		}
+		$total_cart = str_replace( ".", "", WC()->cart->total );
+		$rules[0]['amount'] = $total_cart - $total_rules;
 
 		return $rules;
 	}
